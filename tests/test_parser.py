@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 
@@ -156,3 +157,15 @@ def test_legacy_cast_is_visible_but_not_modelled():
     fm = doc.front_matter
     assert fm.has_legacy_cast_key
     assert fm.legacy_cast_character_names == ("NARRATOR", "GUEST")
+
+
+def test_quoted_values_become_plain_strings():
+    """ruamel's quoted-string subclasses break pathlib; they must not leak."""
+    doc = parse(
+        "---\ntype: project\ntitle: X\nauthor: Y\n"
+        "created: 2025-01-25T00:00:00Z\n"
+        'episodesDir: "episodes"\n---\n'
+    )
+    episodes_dir = doc.front_matter.episodes_dir
+    assert type(episodes_dir) is str
+    assert (Path("/tmp") / episodes_dir).name == "episodes"

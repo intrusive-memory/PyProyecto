@@ -39,6 +39,14 @@ from .errors import (
     ProyectoError,
     VariantFileNotFoundError,
 )
+from .layout import (
+    COMPOSITION_EXTENSIONS,
+    LayoutAudit,
+    ProjectLayout,
+    audit_layout,
+    episode_files,
+    resolve_layout,
+)
 from .models import (
     CURRENT_SCHEMA_VERSION,
     SUPPORTED_SCHEMA_VERSIONS,
@@ -52,6 +60,7 @@ from .models import (
 )
 from .parser import ProjectDocument, parse, parse_file
 from .resolver import resolve_variant
+from .scaffold import DirectoryScan, SeasonScan, scaffold_project, scan_directory
 from .settings import has_settings, settings, settings_as, with_settings
 from .validator import ValidationMetadata, ValidationResult, validate
 from .writer import (
@@ -66,21 +75,26 @@ from .writer import (
 __version__ = "0.1.0"
 
 __all__ = [
+    "COMPOSITION_EXTENSIONS",
     "CURRENT_SCHEMA_VERSION",
     "KNOWN_VARIABLES",
     "PROJECT_FILENAME",
     "SUPPORTED_SCHEMA_VERSIONS",
     "ConformanceWarning",
+    "DirectoryScan",
     "FilePattern",
     "InvalidDateError",
     "InvalidYAMLError",
     "LanguageDefinition",
+    "LayoutAudit",
     "MissingRequiredFieldError",
     "NoFrontMatterError",
     "ProjectDocument",
     "ProjectFrontMatter",
+    "ProjectLayout",
     "ProyectoError",
     "SeasonDefinition",
+    "SeasonScan",
     "TTSConfig",
     "TemplateValidation",
     "ValidationMetadata",
@@ -89,6 +103,8 @@ __all__ = [
     "VariantReference",
     "VariantStatus",
     "__version__",
+    "audit_layout",
+    "episode_files",
     "extract_template_variables",
     "find_project_md",
     "find_variants",
@@ -102,9 +118,12 @@ __all__ = [
     "parse",
     "parse_file",
     "resolve_episode_path",
+    "resolve_layout",
     "resolve_variant",
     "restore_backup",
     "rotate",
+    "scaffold_project",
+    "scan_directory",
     "settings",
     "settings_as",
     "validate",

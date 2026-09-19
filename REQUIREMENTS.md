@@ -166,9 +166,51 @@ All errors subclass `ProyectoError`: `NoFrontMatterError`, `InvalidYAMLError`, `
 4. **An unmodified document renders as the bytes it was parsed from.** `document.is_modified` reports which case applies. Reading and writing without edits changes nothing.
 5. **A replaced value keeps the style of the value it replaced.** Handing `with_updates` a plain list for a flow-style `tags: [a, b]` re-emits flow style, so an edit to a hand-maintained file produces a minimal diff rather than a reformat.
 
+### F11. Layout resolution and adoption
+
+The format exists to describe a project made of many files, so the library has
+to answer both "what does this PROJECT.md claim?" and "what is actually on
+disk?". This reverses part of the original out-of-scope list: directory
+structure recognition was excluded on the grounds that SwiftProyecto keeps it
+in separate services, but excluding it cut out the use case the format is for.
+
+1. `resolve_layout(document, *, season=None, root=None) -> ProjectLayout`
+   resolves `episodesDir`, `audioDir`, `filePattern`, `introFile`, and
+   `outroFile` into real paths. Season-level values override project-level ones,
+   matching F6's resolution order. The root is the directory holding PROJECT.md;
+   nothing follows an absolute path out of the project.
+2. `episode_files(...)` returns the matching files in **natural order**, so
+   `chapter-2` precedes `chapter-10`. Globs are expanded; an explicitly named
+   file that is absent is reported in `missing_files` rather than skipped,
+   because a named file that is not there is a broken declaration while an
+   empty glob may just be an empty season.
+3. `audit_layout(...) -> LayoutAudit` reports the drift between declaration and
+   directory: a missing `episodesDir`, a named file that is absent, a glob that
+   matches nothing, a declared episode count that no longer matches, a missing
+   intro/outro asset, and composition files that no pattern covers. This is the
+   check that makes adoption verifiable rather than hopeful.
+4. `scan_directory(path) -> DirectoryScan` detects the three layouts that occur
+   in practice — flat, an `episodes/` subdirectory, and season directories
+   (`season-1`, `season_2`, `s03`, `Season 4`) — and reports the extensions
+   present and whether a PROJECT.md already exists.
+5. `scaffold_project(path, *, author, ...) -> ProjectDocument` proposes a
+   PROJECT.md for a directory: the layout it found, a `filePattern` covering the
+   extensions actually present, and a `seasons` array when season directories
+   exist. It returns a document to review and **never writes**; writing goes
+   through F9 so an existing file is rotated rather than overwritten.
+6. Optional narrative fields (`description`, `genre`, `tags`) are left unset.
+   Inventing them puts guesses into a file that gets committed.
+7. Public entry points that take a path accept `~`.
+
+The consumer-facing guide is [ADOPTING.md](ADOPTING.md), whose "For agents"
+section is the procedure an agent follows when asked to turn a folder into a
+project.
+
 ## Out of scope
 
-LLM project generation (`proyecto init` / `generate-project`), `proyecto migrate` and anything that calls `reparto`, CAST.md, the ProjectBrowser UI, SwiftData models, bookmarks, git file sources, directory structure recognition, and `ParseBatchConfig` audio iteration.
+LLM project generation (`proyecto init` / `generate-project`), `proyecto migrate` and anything that calls `reparto`, CAST.md, the ProjectBrowser UI, SwiftData models, bookmarks, git file sources, and `ParseBatchConfig` audio iteration.
+
+Directory structure recognition was on this list until F11; see that section for why it moved.
 
 ## Conformance
 
@@ -213,6 +255,7 @@ The port must not reproduce these. Each needs a SwiftProyecto issue.
 - **`copy.deepcopy` on a ruamel structure corrupts it.** Deep-copying a loaded document detaches comments from their keys, and the re-emitted result (`cast:   -`) no longer parses — it silently turns a valid file into a broken one. Cloning goes through YAML text instead (`parser._clone`). A corpus test covers it.
 - **ruamel quotes timestamp-shaped strings on output.** Removing the implicit `timestamp` resolver is what lets `created:` round-trip unquoted, matching Swift's output byte for byte.
 - **`Final` on a `slots=True` dataclass becomes a slot, not a constant.** The per-type YAML key lists must be `ClassVar`; annotated `Final`, they turn into member descriptors and every "unknown key" computation raises at runtime (F3.8).
+- **ruamel's quoted-string types are `str` subclasses that `pathlib` rejects.** A quoted `episodesDir: "episodes"` produced a value that raised `TypeError: can't intern DoubleQuotedScalarString` when joined to a `Path`, while the unquoted form worked. Quoting is the document's business, so `_as_str` coerces to plain `str` at the model boundary; the raw values stay in `document.data` for round-tripping.
 - **A flow-style value replaced with a plain Python list re-emits as a block list.** Left alone, a one-line `tags: [a, b]` becomes six lines and the diff buries the actual change (F10.5).
 
 ## Repository conventions (new `~/Projects/python` pattern)

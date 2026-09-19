@@ -77,7 +77,7 @@ def write_text(
 
     Returns the backup path, or ``None`` if no backup was made.
     """
-    target = Path(path)
+    target = Path(path).expanduser()
     target.parent.mkdir(parents=True, exist_ok=True)
 
     # Stage the new content first: if this fails, the original is untouched.

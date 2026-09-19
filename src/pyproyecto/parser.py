@@ -262,6 +262,6 @@ def parse(text: str, *, path: str | os.PathLike[str] | None = None) -> ProjectDo
 
 def parse_file(path: str | os.PathLike[str]) -> ProjectDocument:
     """Parse a PROJECT.md file from disk (UTF-8, BOM tolerated)."""
-    source = Path(path)
+    source = Path(path).expanduser()
     text = source.read_text(encoding="utf-8-sig")
     return parse(text, path=source)
