@@ -69,14 +69,13 @@ A pending publisher works before the project exists; the first successful
 publish creates it and claims the name. As of 2026-09-17 the name `pyproyecto`
 was unclaimed — check again before relying on it.
 
-### c. Create the GitHub environment
+### c. The GitHub environment already exists
 
-```bash
-gh api -X PUT repos/intrusive-memory/PyProyecto/environments/pypi
-```
+The `pypi` environment is created and holds no secrets. Optionally add yourself
+as a required reviewer on it, which makes every publish need an explicit
+approval click:
 
-Optionally add yourself as a required reviewer on that environment, which makes
-every publish need an explicit approval click.
+<https://github.com/intrusive-memory/PyProyecto/settings/environments>
 
 ### d. Switch it on
 
