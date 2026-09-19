@@ -248,12 +248,31 @@ Every question below was resolved on 2026-09-19. Where the answer differs from t
 
 ## Status
 
-0.1.0 is implemented and committed (local repo only; no GitHub remote yet). F1–F10 are done, with 181 tests, and `ruff` and `mypy --strict` clean. The fixture tree holds 17 corpus files, 11 doc examples, and 13 adversarial files.
+0.1.0 is implemented and published to <https://github.com/intrusive-memory/PyProyecto>
+(public). F1-F10 are done, with 212 tests, and `ruff` and `mypy --strict` clean.
+The fixture tree holds 17 corpus files, 11 doc examples, and 13 adversarial
+files.
 
-Follow-up work, none of it blocking:
+**Pipeline** (see [RELEASING.md](RELEASING.md)): `development` -> `main` ->
+tagged release -> PyPI. `main` is protected, requires the four `Unit tests`
+checks plus `Lint and type check`, enforces linear history, and rejects direct
+pushes including from admins. That rejection is verified, not assumed.
 
-1. File D1–D10 as SwiftProyecto issues. D1 is the urgent one: until it is fixed, a Swift write will drop the nested season keys a Python write preserves.
-2. Fix the one real project file whose `author:` value starts with `@` (quote it), and check whether Swift's YAML parser accepts it — if it does, the two implementations disagree about a real file.
-3. Add `proyecto dump --json` to SwiftProyecto, then wire up the differential CI job (settled decision 8).
-4. Create the `intrusive-memory/PyProyecto` GitHub repo and configure PyPI Trusted Publishing.
+**The fixture corpus is synthetic.** Shapes came from real projects; content is
+invented, because this repository is public and the source files hold
+unreleased work. `test_fixture_hygiene.py` blocks a verbatim copy and asserts
+the corpus still covers every shape.
+
+Follow-up work:
+
+1. **PyPI is the final action and is not done yet.** The `pypi` job is skipped
+   until the repository variable `PYPI_PUBLISH` is `true`, which needs a PyPI
+   account and a Trusted Publisher that only a human can create. RELEASING.md
+   step 4 has the exact form values. Until then `pip install pyproyecto` does
+   not work.
+2. File D1-D10 as SwiftProyecto issues. D1 is the urgent one: until it is
+   fixed, a Swift write drops the nested season keys a Python write preserves.
+3. Fix the one real project file whose `author:` value starts with `@`.
+4. Add `proyecto dump --json` to SwiftProyecto, then wire up the differential
+   CI job (settled decision 8).
 5. Revisit the CLI at 0.2 (settled decision 4).
