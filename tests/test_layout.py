@@ -78,9 +78,7 @@ def test_layout_resolves_directories_against_the_project_root(tmp_path):
 
 
 def test_non_matching_extensions_are_ignored(tmp_path):
-    doc = _project(
-        tmp_path, FLAT, ["episodes/a.fountain", "episodes/notes.md"]
-    )
+    doc = _project(tmp_path, FLAT, ["episodes/a.fountain", "episodes/notes.md"])
     assert [p.name for p in episode_files(doc)] == ["a.fountain"]
 
 
@@ -126,9 +124,7 @@ def test_layout_needs_a_root_when_the_document_has_no_path():
 
 def test_audit_is_clean_when_the_declaration_matches_disk(tmp_path):
     front = FLAT.replace("created:", "episodes: 2\ncreated:")
-    doc = _project(
-        tmp_path, front, ["episodes/a.fountain", "episodes/b.fountain"]
-    )
+    doc = _project(tmp_path, front, ["episodes/a.fountain", "episodes/b.fountain"])
     audit = audit_layout(doc)
     assert audit.is_clean, (audit.errors, audit.warnings)
 
@@ -147,9 +143,7 @@ def test_audit_reports_a_count_mismatch(tmp_path):
 
 
 def test_audit_reports_files_no_pattern_covers(tmp_path):
-    doc = _project(
-        tmp_path, FLAT, ["episodes/a.fountain", "episodes/stray.highland"]
-    )
+    doc = _project(tmp_path, FLAT, ["episodes/a.fountain", "episodes/stray.highland"])
     audit = audit_layout(doc)
     assert [p.name for p in audit.unmatched_files] == ["stray.highland"]
     assert any("match no filePattern" in w for w in audit.warnings)
