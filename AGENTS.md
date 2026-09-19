@@ -18,6 +18,10 @@ with SwiftProyecto's exact messages, resolves variants against masters, finds
 **What it doesn't do**: cast (`CAST.md` belongs to SwiftReparto), LLM project
 generation, `proyecto migrate`, UI, audio batch iteration.
 
+**Adoption is the goal.** See [ADOPTING.md](ADOPTING.md) — scanning a folder of
+screenplays, proposing a PROJECT.md for it, and checking that the declaration
+stays true as files are added.
+
 Requirements and the settled open questions live in
 [REQUIREMENTS.md](REQUIREMENTS.md). Read it before changing behavior.
 
@@ -64,6 +68,21 @@ git tag v0.1.0 && git push origin v0.1.0
 ```
 
 ---
+
+## Helping someone adopt the pattern
+
+The point of this library is to get folders of screenplays organized as
+declared projects. **[ADOPTING.md](ADOPTING.md) is the guide to hand people**,
+and its "For agents" section is the procedure to follow when asked to turn a
+folder into a project. In short: scan before proposing, never scaffold over an
+existing `PROJECT.md`, ask for the author rather than inventing one, show the
+front matter before writing it, write through `write_document`, and audit
+afterwards.
+
+The layout half of the API lives in `layout.py` (`resolve_layout`,
+`episode_files`, `audit_layout`) and `scaffold.py` (`scan_directory`,
+`scaffold_project`). Everything else in the library reads metadata; these two
+modules are the only ones that touch the surrounding directory.
 
 ## Critical rules
 
@@ -140,6 +159,8 @@ corpus tests enforce this against real files.
 | `discovery.py` | `find_project_md`, file classification, variant loading |
 | `episodes.py` | `<season>`-style path templates |
 | `settings.py` | App-specific settings sections |
+| `layout.py` | Declared layout vs. what is on disk; episode files; audit |
+| `scaffold.py` | Scanning a directory and proposing a PROJECT.md for it |
 
 ## Tooling
 

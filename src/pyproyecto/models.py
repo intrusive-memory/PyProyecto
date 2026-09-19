@@ -52,7 +52,12 @@ def _type_error(path: str, expected: str, value: object) -> InvalidYAMLError:
 
 def _as_str(value: object, path: str) -> str:
     if isinstance(value, str):
-        return value
+        # ruamel hands back str *subclasses* that remember their quoting style.
+        # They leak into the typed model and then fail in surprising places --
+        # pathlib refuses to intern them, so `root / front_matter.episodes_dir`
+        # raises TypeError for a quoted value but works for an unquoted one.
+        # Quoting is the document's business, not the model's.
+        return str(value)
     raise _type_error(path, "a string", value)
 
 
@@ -151,7 +156,7 @@ class FilePattern:
     @classmethod
     def parse(cls, value: object, path: str) -> FilePattern:
         if isinstance(value, str):
-            return cls((value,), is_single=True)
+            return cls((_as_str(value, path),), is_single=True)
         items = _as_sequence(value, path)
         return cls(
             tuple(_as_str(item, f"{path}[{i}]") for i, item in enumerate(items)),
@@ -342,7 +347,8 @@ class LanguageDefinition:
                         swift_defect="D3",
                     )
                 )
-            return cls(code=value, name=value)
+            plain = _as_str(value, path)
+            return cls(code=plain, name=plain)
         mapping = _as_mapping(value, path)
         prefix = f"{path}."
         return cls(

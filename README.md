@@ -75,6 +75,50 @@ people maintain by hand. `with_front_matter` re-emits the whole document in
 canonical key order, which is cleaner but drops comments. An unmodified
 document writes back byte-for-byte identical.
 
+## Organizing a multi-file project
+
+This is what the format is for: a folder of screenplays (or any composition
+files) with one `PROJECT.md` declaring how it is laid out, so tools stop
+guessing. **[ADOPTING.md](ADOPTING.md) is the full guide** — including a
+procedure for agents.
+
+Turn an existing folder into a project:
+
+```python
+from pyproyecto import audit_layout, parse_file, scaffold_project, write_document
+
+doc = scaffold_project("~/screenplays/the-long-tide", author="Your Name")
+print(doc.to_text())                 # review before writing
+write_document(doc, "~/screenplays/the-long-tide/PROJECT.md")
+
+audit = audit_layout(parse_file("~/screenplays/the-long-tide/PROJECT.md"))
+print(audit.is_clean, audit.warnings)
+```
+
+`scan_directory` detects flat folders, an `episodes/` subdirectory, and season
+directories (`season-1`, `s02`), and `filePattern` covers the extensions
+actually present — so you declare the layout you already have rather than
+reorganizing to fit the tool.
+
+Then work with it:
+
+```python
+from pyproyecto import episode_files, find_project_md, parse_file
+
+find_project_md("episodes/chapter-3.fountain")     # -> Path("PROJECT.md")
+
+doc = parse_file("PROJECT.md")
+episode_files(doc)                                  # natural order: 1, 2, 10
+episode_files(doc, season=2)                        # season overrides applied
+audit_layout(doc).unmatched_files                   # files no pattern covers
+```
+
+`resolve_layout` returns the whole picture — episodes directory, audio
+directory, patterns, resolved intro/outro assets, and the files that exist.
+`audit_layout` is the check to run after adding files: it reports a declared
+episode count that has drifted, a named file that is missing, and composition
+files no `filePattern` matches.
+
 ## Creating a file from scratch
 
 ```python

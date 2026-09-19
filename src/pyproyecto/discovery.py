@@ -25,7 +25,7 @@ def _check(directory: Path) -> Path | None:
 
 def find_project_md(start: str | os.PathLike[str]) -> Path | None:
     """Locate the PROJECT.md governing ``start`` (a file or a directory)."""
-    origin = Path(start)
+    origin = Path(start).expanduser()
     directory = origin if origin.is_dir() else origin.parent
 
     if directory.name.lower() == "episodes":
